@@ -43,6 +43,12 @@ Outputs:
 - `output/report.html`
 - `output/reports/YYYY-MM-DD.html`
 
+## Public Report
+
+GitHub Pages publishes the generated `output/` directory after every successful daily workflow run:
+
+https://jaxxchen003.github.io/microsaas-radar/
+
 ## Scheduling
 
 ### Local cron
@@ -70,6 +76,8 @@ The workflow commits these generated files back to the repository:
 - `output/latest.html`
 - `output/report.html`
 - `output/reports/YYYY-MM-DD.html`
+
+It also deploys the same `output/` directory to GitHub Pages, so the public report URL stays stable while the content updates daily.
 
 The stable daily viewing entrypoint is `output/latest.html`. `output/index.html` keeps the lightweight static-site archive.
 HTML pages default to Chinese UI copy and include Chinese/English language switching, dark/light theme switching, top metrics, filter chips, and scan-friendly opportunity tags.
