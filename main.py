@@ -11,6 +11,7 @@ from analyzer import batch_analyze
 from config import DEFAULT_DB_PATH, DEFAULT_OUTPUT_DIR
 from db import connect, fetch_analyzed_posts, init_db, upsert_analyses, upsert_posts
 from reporter import generate_csv_report, generate_report_site
+from scrapers.anysearch_scraper import fetch_anysearch_reddit_needs
 from scrapers.gtrends import fetch_trend_topics
 from scrapers.hn_scraper import fetch_hn_needs
 from scrapers.reddit_scraper import fetch_reddit_needs
@@ -36,6 +37,15 @@ async def run_pipeline(args: argparse.Namespace) -> dict[str, Any]:
             reddit_posts = await fetch_reddit_needs(limit_per_sub=args.reddit_limit)
             all_posts.extend(reddit_posts)
             print(f"  Reddit: {len(reddit_posts)} pain signals")
+
+        if not args.skip_anysearch:
+            print("\n[2.5/4] Searching Reddit via AnySearch...")
+            anysearch_posts = await fetch_anysearch_reddit_needs(
+                limit_per_query=args.anysearch_limit,
+                freshness=args.anysearch_freshness,
+            )
+            all_posts.extend(anysearch_posts)
+            print(f"  AnySearch Reddit: {len(anysearch_posts)} pain signals")
 
         if not args.skip_trends:
             print("\n[3/4] Fetching Google Trends enrichment...")
@@ -90,6 +100,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Report output directory.")
     parser.add_argument("--hn-limit", type=int, default=30, help="HN hits per query.")
     parser.add_argument("--reddit-limit", type=int, default=100, help="Reddit posts per subreddit.")
+    parser.add_argument("--anysearch-limit", type=int, default=8, help="AnySearch Reddit results per query.")
+    parser.add_argument(
+        "--anysearch-freshness",
+        default="month",
+        choices=["day", "week", "month", "year"],
+        help="AnySearch freshness window.",
+    )
     parser.add_argument("--max-analyze", type=int, default=50, help="Max posts to analyze per run.")
     parser.add_argument("--analysis-delay", type=float, default=0.3, help="Delay between analysis calls.")
     parser.add_argument("--report-date", default=None, help="Report date in YYYY-MM-DD format.")
@@ -97,6 +114,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--history-limit", type=int, default=30, help="Number of archived reports shown on index.")
     parser.add_argument("--skip-hn", action="store_true", help="Skip HackerNews scraping.")
     parser.add_argument("--skip-reddit", action="store_true", help="Skip Reddit scraping.")
+    parser.add_argument("--skip-anysearch", action="store_true", help="Skip AnySearch Reddit fallback.")
     parser.add_argument("--skip-trends", action="store_true", help="Skip Google Trends enrichment.")
     parser.add_argument("--skip-llm", action="store_true", help="Use heuristic analyzer only.")
     return parser

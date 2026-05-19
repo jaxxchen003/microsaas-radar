@@ -8,6 +8,7 @@ from pathlib import Path
 from analyzer import heuristic_analyze_post
 from db import fetch_analyzed_posts, init_db, upsert_analyses, upsert_posts
 from reporter import generate_csv_report, generate_html_report, generate_report_site
+from scrapers.anysearch_scraper import parse_anysearch_results
 from signal_utils import extract_signal_matches, has_opportunity_signal
 
 
@@ -143,6 +144,23 @@ class ReporterTest(unittest.TestCase):
             self.assertIn("High pay intent", latest_html)
             self.assertIn("高付费意愿", latest_html)
             self.assertIn('data-filter="score-8"', latest_html)
+
+
+class AnySearchParserTest(unittest.TestCase):
+    def test_parse_anysearch_markdown_results(self) -> None:
+        markdown = """
+## 搜索结果 (共 1 条，耗时 100ms)
+
+### 1. I wish there was an AI tool that could - Reddit
+- **链接**: https://www.reddit.com/r/SaaS/comments/example/i_wish/
+- I wish there was a tool that could automate this workflow.
+date: Aug 4, 2025
+"""
+        results = parse_anysearch_results(markdown)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["url"], "https://www.reddit.com/r/SaaS/comments/example/i_wish/")
+        self.assertIn("automate this workflow", results[0]["snippet"])
+        self.assertEqual(results[0]["date"], "Aug 4, 2025")
 
 
 if __name__ == "__main__":

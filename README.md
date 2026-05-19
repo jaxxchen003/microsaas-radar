@@ -17,7 +17,10 @@ export OPENAI_API_KEY="..."
 export REDDIT_CLIENT_ID="..."
 export REDDIT_CLIENT_SECRET="..."
 export REDDIT_USER_AGENT="microsaas-radar/1.0 (by /u/yourusername)"
+export ANYSEARCH_API_KEY="..."
 ```
+
+`ANYSEARCH_API_KEY` is optional. Anonymous AnySearch access is used with lower limits when the key is not set.
 
 ## Run
 
@@ -58,6 +61,7 @@ Optional repository secrets:
 - `REDDIT_CLIENT_ID`: enables Reddit scraping.
 - `REDDIT_CLIENT_SECRET`: enables Reddit scraping.
 - `REDDIT_USER_AGENT`: recommended for Reddit API requests.
+- `ANYSEARCH_API_KEY`: optional higher-limit AnySearch key for Reddit search fallback.
 
 The workflow commits these generated files back to the repository:
 
@@ -74,5 +78,6 @@ HTML pages default to Chinese UI copy and include Chinese/English language switc
 
 - HackerNews uses the public Algolia Search API.
 - Reddit uses the official OAuth client credentials flow.
+- AnySearch searches indexed Reddit pages as a no-secret fallback when Reddit OAuth credentials are unavailable.
 - Google Trends is best-effort via `pytrends` and may be rate-limited by the upstream service.
 - X/Twitter and G2 are intentionally left as future source modules because they need separate API access and compliance review.

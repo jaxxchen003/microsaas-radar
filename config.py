@@ -74,8 +74,17 @@ TRENDS_KEYWORDS = [
     "ai productivity tool",
 ]
 
+ANYSEARCH_REDDIT_QUERIES = [
+    'site:reddit.com/r/SaaS "wish there was" tool',
+    'site:reddit.com/r/Entrepreneur "would pay for" tool',
+    'site:reddit.com/r/smallbusiness "doing this manually" software',
+    'site:reddit.com/r/webdev "looking for a tool" workflow',
+    'site:reddit.com/r/nocode "no good solution" automate',
+]
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+ANYSEARCH_API_KEY = os.getenv("ANYSEARCH_API_KEY", "")
 
 REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID", "")
 REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET", "")
