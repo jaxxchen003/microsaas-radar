@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Micro SaaS Radar Report</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f6f2;
+      --surface: #f9f8f5;
+      --surface2: #ffffff;
+      --border: #dcd9d5;
+      --text: #28251d;
+      --muted: #77746d;
+      --faint: #aaa7a0;
+      --primary: #01696f;
+      --primary-strong: #0c4e54;
+      --shadow: 0 1px 3px rgb(40 37 29 / 0.07), 0 4px 16px rgb(40 37 29 / 0.05);
+      --r: 8px;
+    }
+    html[data-theme="dark"] {
+      --bg: #171614;
+      --surface: #1c1b19;
+      --surface2: #242321;
+      --border: #3b3936;
+      --text: #e4e2de;
+      --muted: #97938d;
+      --faint: #67625e;
+      --primary: #4f98a3;
+      --primary-strong: #74c8d2;
+      --shadow: 0 1px 3px rgb(0 0 0 / 0.34), 0 4px 20px rgb(0 0 0 / 0.22);
+    }
+    html[data-lang="zh"] .lang-en,
+    html[data-lang="en"] .lang-zh {
+      display: none;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    a {
+      color: var(--primary-strong);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px max(20px, calc((100vw - 1400px) / 2));
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 250px;
+    }
+    .radar-mark {
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+    h1 {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .updated {
+      color: var(--faint);
+      font-size: 12px;
+    }
+    .header-link {
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .header-link:hover {
+      border-color: var(--primary);
+      color: var(--primary-strong);
+      text-decoration: none;
+    }
+    .language-toggle {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .language-toggle button,
+    .theme-btn,
+    .filter-btn {
+      appearance: none;
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+    .language-toggle button {
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .language-toggle button[aria-pressed="true"] {
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+    }
+    .theme-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 6px 10px;
+    }
+    .stats-bar {
+      display: flex;
+      gap: clamp(20px, 4vw, 58px);
+      flex-wrap: wrap;
+      padding: 14px max(20px, calc((100vw - 1400px) / 2));
+      background: var(--primary);
+      color: white;
+    }
+    .stat {
+      min-width: 90px;
+      display: grid;
+      gap: 1px;
+    }
+    .stat-num {
+      font-size: 22px;
+      font-weight: 850;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.8;
+      font-weight: 700;
+    }
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px max(20px, calc((100vw - 1400px) / 2));
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .filter-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 13px;
+      transition: background 0.18s, color 0.18s, border-color 0.18s;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 20px 10px;
+    }
+    .index-main {
+      max-width: 900px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(390px, 100%), 1fr));
+      gap: 20px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 100%;
+      padding: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+    }
+    .card:hover {
+      border-color: color-mix(in srgb, var(--primary) 52%, var(--border));
+      box-shadow: 0 8px 26px rgb(1 105 111 / 0.16);
+      transform: translateY(-1px);
+    }
+    .card.is-hidden {
+      display: none;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .score-badge,
+    .source-tag,
+    .date-tag,
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .score-badge {
+      padding: 5px 10px;
+      font-size: 14px;
+      font-weight: 850;
+      border: 1px solid;
+    }
+    .score-high {
+      color: #22c55e;
+      background: rgb(34 197 94 / 0.13);
+      border-color: rgb(34 197 94 / 0.35);
+    }
+    .score-mid {
+      color: #f59e0b;
+      background: rgb(245 158 11 / 0.13);
+      border-color: rgb(245 158 11 / 0.35);
+    }
+    .score-low {
+      color: #ef4444;
+      background: rgb(239 68 68 / 0.12);
+      border-color: rgb(239 68 68 / 0.32);
+    }
+    .meta-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .source-tag {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .date-tag {
+      color: var(--faint);
+      font-size: 12px;
+    }
+    .card-title {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+    .card-title a {
+      color: var(--text);
+    }
+    .card-title a:hover {
+      color: var(--primary-strong);
+      text-decoration: none;
+    }
+    .insight-box {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 12px;
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .box-icon {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+      color: var(--primary-strong);
+      font-weight: 900;
+      line-height: 1;
+    }
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .badge {
+      max-width: 100%;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 750;
+      color: var(--muted);
+      background: var(--bg);
+    }
+    .badge.wide {
+      white-space: normal;
+    }
+    .pay-high,
+    .comp-low {
+      color: #22c55e;
+      background: rgb(34 197 94 / 0.12);
+      border-color: rgb(34 197 94 / 0.30);
+    }
+    .pay-medium,
+    .comp-medium {
+      color: #f59e0b;
+      background: rgb(245 158 11 / 0.12);
+      border-color: rgb(245 158 11 / 0.30);
+    }
+    .pay-low,
+    .comp-high {
+      color: #ef4444;
+      background: rgb(239 68 68 / 0.11);
+      border-color: rgb(239 68 68 / 0.28);
+    }
+    .keyword-row,
+    .reason-row {
+      color: var(--faint);
+      font-size: 12px;
+    }
+    .keyword-row em {
+      color: var(--muted);
+      font-style: normal;
+    }
+    .reason-row {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      line-height: 1.5;
+    }
+    .empty {
+      grid-column: 1 / -1;
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: var(--surface2);
+    }
+    .footer {
+      padding: 28px 20px 34px;
+      text-align: center;
+      color: var(--faint);
+      font-size: 13px;
+    }
+    .actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .action-card,
+    .archive-list li {
+      display: block;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+    .archive-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    @media (max-width: 720px) {
+      .header {
+        position: static;
+        align-items: flex-start;
+      }
+      .header-actions {
+        justify-content: flex-start;
+      }
+      .stats-bar {
+        gap: 18px;
+      }
+      .stat {
+        min-width: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="radar-mark" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="15" cy="15" r="12" stroke="currentColor" stroke-width="2"/>
+          <circle cx="15" cy="15" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <circle cx="15" cy="15" r="2.5" fill="currentColor"/>
+          <path d="M15 3V7M25.4 9L21.9 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1><span class="lang-zh">Micro SaaS 需求雷达</span><span class="lang-en">Micro SaaS Radar Report</span></h1>
+        <p><span class="lang-zh">自动扫描真实用户痛点</span><span class="lang-en">Automated scan of real user pain signals</span></p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="updated"><span class="lang-zh">更新于</span><span class="lang-en">Updated</span> 2026-05-19</span>
+      <a class="header-link" href="index.html"><span class="lang-zh">历史</span><span class="lang-en">History</span></a>
+      <a class="header-link" href="opportunities.csv">CSV</a>
+      <div class="language-toggle" aria-label="Language">
+        <button type="button" data-set-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-set-lang="en" aria-pressed="false">English</button>
+      </div>
+      <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle theme">◐</button>
+    </div>
+  </header>
+  <section class="stats-bar" aria-label="Report statistics">
+    
+    <div class="stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label"><span class="lang-zh">痛点信号</span><span class="lang-en">Pain signals</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num"></span>
+      <span class="stat-label"><span class="lang-zh">高付费意愿</span><span class="lang-en">High pay intent</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num"></span>
+      <span class="stat-label"><span class="lang-zh">低竞争机会</span><span class="lang-en">Low competition</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num">8.4</span>
+      <span class="stat-label"><span class="lang-zh">平均机会分</span><span class="lang-en">Avg opportunity</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num">HN</span>
+      <span class="stat-label"><span class="lang-zh">数据来源</span><span class="lang-en">Sources</span></span>
+    </div>
+    
+  </section>
+  <section class="filters" aria-label="Opportunity filters">
+    <span class="filter-label"><span class="lang-zh">筛选：</span><span class="lang-en">Filter:</span></span>
+    <button class="filter-btn active" type="button" data-filter="all"><span class="lang-zh">全部</span><span class="lang-en">All</span></button>
+    <button class="filter-btn" type="button" data-filter="high-pay"><span class="lang-zh">高付费意愿</span><span class="lang-en">High pay intent</span></button>
+    <button class="filter-btn" type="button" data-filter="low-comp"><span class="lang-zh">低竞争</span><span class="lang-en">Low competition</span></button>
+    <button class="filter-btn" type="button" data-filter="score-8"><span class="lang-zh">8分以上</span><span class="lang-en">8+ score</span></button>
+    <button class="filter-btn" type="button" data-filter="score-6"><span class="lang-zh">6分以上</span><span class="lang-en">6+ score</span></button>
+  </section>
+  <main>
+    <section class="grid" id="cards-grid">
+      
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HackerNews</span>
+            <span class="date-tag">2019-07-06</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=20371095" target="_blank" rel="noopener noreferrer">Ask HN: Best office chair for home office work?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I&amp;#x27;m looking for an office chair that I can spend 6-10 hours a day in.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">137 条评论</span><span class="lang-en">137 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">163 原站分</span><span class="lang-en">163 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>service, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HackerNews</span>
+            <span class="date-tag">2021-11-19</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=29275470" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no good open-source LMS?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I want to start a teaching business.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">159 条评论</span><span class="lang-en">159 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">157 原站分</span><span class="lang-en">157 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>software, platform, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HackerNews</span>
+            <span class="date-tag">2022-08-19</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=32526108" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no performant remote desktop for Mac/Linux?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>IIUC, RDP (Microsoft&amp;#x27;s remote desktop protocol) sends draw commands across.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">214 条评论</span><span class="lang-en">214 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">198 原站分</span><span class="lang-en">198 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HackerNews</span>
+            <span class="date-tag">2022-02-20</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=30405011" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no small Android phone?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>When I search for phones with 3GB+ RAM and &amp;lt;=140mm height, there&amp;#x27;s only iPhone SE, iPhone 12 mini, and iPhone 13 mini.&lt;p&gt;The fact that Apple released 3 phones in 3 years wi</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">220 条评论</span><span class="lang-en">220 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">191 原站分</span><span class="lang-en">191 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HackerNews</span>
+            <span class="date-tag">2019-02-24</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=19239317" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no activity indicator when an iPhone's camera is on?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I never understood this.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">60 条评论</span><span class="lang-en">60 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">118 原站分</span><span class="lang-en">118 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+    </section>
+  </main>
+  <footer class="footer">
+    <span class="lang-zh">由 Micro SaaS Radar 生成。使用筛选器快速定位机会。</span><span class="lang-en">Generated by Micro SaaS Radar. Use filters to triage opportunities quickly.</span>
+  </footer>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const languageButtons = Array.from(document.querySelectorAll("[data-set-lang]"));
+      const themeButton = document.querySelector("[data-theme-toggle]");
+      const filterButtons = Array.from(document.querySelectorAll("[data-filter]"));
+      const cards = Array.from(document.querySelectorAll(".card[data-score]"));
+
+      const setLanguage = (lang) => {
+        const normalized = lang === "en" ? "en" : "zh";
+        root.dataset.lang = normalized;
+        root.lang = normalized === "zh" ? "zh-CN" : "en";
+        languageButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.setLang === normalized));
+        });
+        try {
+          localStorage.setItem("microsaas-radar-language", normalized);
+        } catch (error) {}
+      };
+
+      const setTheme = (theme) => {
+        const normalized = theme === "light" ? "light" : "dark";
+        root.dataset.theme = normalized;
+        if (themeButton) {
+          themeButton.textContent = normalized === "dark" ? "☀" : "◐";
+        }
+        try {
+          localStorage.setItem("microsaas-radar-theme", normalized);
+        } catch (error) {}
+      };
+
+      const applyFilter = (filter) => {
+        cards.forEach((card) => {
+          const score = Number(card.dataset.score || "0");
+          const pay = card.dataset.pay;
+          const comp = card.dataset.comp;
+          const visible =
+            filter === "all" ||
+            (filter === "high-pay" && pay === "high") ||
+            (filter === "low-comp" && comp === "low") ||
+            (filter === "score-8" && score >= 8) ||
+            (filter === "score-6" && score >= 6);
+          card.classList.toggle("is-hidden", !visible);
+        });
+        filterButtons.forEach((button) => {
+          button.classList.toggle("active", button.dataset.filter === filter);
+        });
+      };
+
+      languageButtons.forEach((button) => {
+        button.addEventListener("click", () => setLanguage(button.dataset.setLang));
+      });
+      if (themeButton) {
+        themeButton.addEventListener("click", () => {
+          setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+        });
+      }
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => applyFilter(button.dataset.filter || "all"));
+      });
+
+      let savedLanguage = "zh";
+      let savedTheme = "dark";
+      try {
+        savedLanguage = localStorage.getItem("microsaas-radar-language") || "zh";
+        savedTheme = localStorage.getItem("microsaas-radar-theme") || "dark";
+      } catch (error) {}
+      setLanguage(savedLanguage);
+      setTheme(savedTheme);
+      applyFilter("all");
+    })();
+  </script>
+</body>
+</html>
