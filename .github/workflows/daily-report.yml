@@ -2,8 +2,12 @@ name: Daily Micro SaaS Radar Report
 
 on:
   schedule:
-    # 09:00 Asia/Shanghai daily.
-    - cron: "0 1 * * *"
+    # 09:17 Asia/Shanghai daily. Avoid the top of the hour because
+    # GitHub can delay or drop high-load scheduled workflows there.
+    - cron: "17 1 * * *"
+    # 10:47 Asia/Shanghai fallback run. It may commit again if fresh
+    # source data changed, but protects the daily archive from missed runs.
+    - cron: "47 2 * * *"
   workflow_dispatch:
 
 permissions:
@@ -47,6 +51,8 @@ jobs:
 
       - name: Generate daily report
         run: |
+          date
+          date -u
           REPORT_DATE="$(date +%F)"
           python main.py --report-date "$REPORT_DATE" --max-analyze 50
 
@@ -59,6 +65,7 @@ jobs:
             echo "No report changes to commit."
           else
             git commit -m "Refresh daily Micro SaaS radar report"
+            git pull --rebase origin main
             git push
           fi
 
