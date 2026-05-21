@@ -162,6 +162,20 @@ date: Aug 4, 2025
         self.assertIn("automate this workflow", results[0]["snippet"])
         self.assertEqual(results[0]["date"], "Aug 4, 2025")
 
+    def test_parse_anysearch_english_url_label(self) -> None:
+        markdown = """
+## Search Results (1 result, 100ms)
+
+### 1. Does anyone else wish there was a simple dashboard? - Reddit
+- **URL**: https://www.reddit.com/r/SaaS/comments/example/dashboard/
+- I wish there was a simple tool for this workflow.
+date: Feb 24, 2026
+"""
+        results = parse_anysearch_results(markdown)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["url"], "https://www.reddit.com/r/SaaS/comments/example/dashboard/")
+        self.assertIn("simple tool", results[0]["snippet"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -103,7 +103,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--anysearch-limit", type=int, default=8, help="AnySearch Reddit results per query.")
     parser.add_argument(
         "--anysearch-freshness",
-        default="month",
+        default="year",
         choices=["day", "week", "month", "year"],
         help="AnySearch freshness window.",
     )

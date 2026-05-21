@@ -16,7 +16,7 @@ ANYSEARCH_ENDPOINT = "https://api.anysearch.com/mcp"
 
 async def fetch_anysearch_reddit_needs(
     limit_per_query: int = 8,
-    freshness: str = "month",
+    freshness: str = "year",
 ) -> list[dict[str, Any]]:
     """Search indexed Reddit pages through AnySearch.
 
@@ -111,7 +111,7 @@ def parse_anysearch_results(markdown: str) -> list[dict[str, str]]:
             continue
         if not current:
             continue
-        link_match = re.match(r"^-\s+\*\*链接\*\*:\s+(\S+)", line)
+        link_match = re.match(r"^-\s+\*\*(?:链接|URL|Link)\*\*:\s+(\S+)", line, flags=re.IGNORECASE)
         if link_match:
             current["url"] = link_match.group(1).strip()
             continue
