@@ -16,6 +16,8 @@ ANALYSIS_PROMPT = """
 帖子内容：{body}
 来源：{source}
 
+注意：如果来源是 TrustMRR，这不是用户抱怨帖，而是已验证收入的市场验证信号。请判断它能否帮助验证某个 Micro SaaS 赛道，产品方向应聚焦“可借鉴的细分市场/目标用户/差异化机会”，不要把它误判成用户原帖。
+
 请返回如下JSON格式（不要包含markdown代码块）：
 {{
   "is_product_opportunity": true/false,
@@ -44,6 +46,8 @@ REQUIRED_ANALYSIS_KEYS = {
 
 
 def analyze_post(post: dict[str, Any], use_llm: bool = True) -> dict[str, Any]:
+    if _is_trustmrr_signal(post):
+        return heuristic_analyze_post(post)
     if use_llm and OPENAI_API_KEY:
         analysis = _analyze_with_openai(post)
         if analysis:
@@ -82,6 +86,9 @@ def _parse_json_object(content: str) -> dict[str, Any]:
 
 
 def heuristic_analyze_post(post: dict[str, Any]) -> dict[str, Any]:
+    if _is_trustmrr_signal(post):
+        return _heuristic_trustmrr_analysis(post)
+
     title = str(post.get("title") or "").strip()
     body = str(post.get("body") or "").strip()
     pain_keywords = _split_keywords(post.get("pain_keywords", ""))
@@ -114,6 +121,45 @@ def heuristic_analyze_post(post: dict[str, Any]) -> dict[str, Any]:
         "competition": "medium",
         "opportunity_score": opportunity_score,
         "reason": "Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.",
+    }
+
+
+def _heuristic_trustmrr_analysis(post: dict[str, Any]) -> dict[str, Any]:
+    title = str(post.get("title") or "").strip()
+    body = str(post.get("body") or "").strip()
+    category = str(post.get("category") or "micro saas")
+    target = str(post.get("target_audience") or "founders or operators")
+    mrr_cents = int(post.get("mrr_cents") or 0)
+    last30_cents = int(post.get("last30_revenue_cents") or 0)
+    score = 5
+    if mrr_cents >= 100000:
+        score += 2
+    elif mrr_cents >= 10000:
+        score += 1
+    if last30_cents >= 100000:
+        score += 1
+    if post.get("growth30d") not in (None, "", 0):
+        score += 1
+    score = max(1, min(10, score))
+    return {
+        "is_product_opportunity": score >= 6,
+        "pain_summary": (
+            f"TrustMRR shows verified revenue in the {category} niche: "
+            f"MRR ${mrr_cents / 100:.0f}, last-30-day revenue ${last30_cents / 100:.0f}."
+        ),
+        "current_workaround": None,
+        "target_user": target,
+        "product_idea": (
+            f"Use this as market-validation evidence for a focused {category} product; "
+            "look for underserved workflows around the same buyer and distribution channel."
+        ),
+        "pay_signal": "high" if mrr_cents >= 10000 or last30_cents >= 10000 else "medium",
+        "competition": "high" if mrr_cents >= 100000 else "medium",
+        "opportunity_score": score,
+        "reason": (
+            "Heuristic TrustMRR score based on verified MRR, recent revenue, and growth fields. "
+            f"Signal: {title or body[:80]}"
+        ),
     }
 
 
@@ -179,3 +225,7 @@ def _normalize_level(value: object, default: str) -> str:
     if "low" in value_text:
         return "low"
     return default
+
+
+def _is_trustmrr_signal(post: dict[str, Any]) -> bool:
+    return str(post.get("source") or "").lower().startswith("trustmrr/")

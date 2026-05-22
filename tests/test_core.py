@@ -8,7 +8,9 @@ from pathlib import Path
 from analyzer import heuristic_analyze_post
 from db import fetch_analyzed_posts, init_db, upsert_analyses, upsert_posts
 from reporter import generate_csv_report, generate_html_report, generate_report_site
-from scrapers.anysearch_scraper import parse_anysearch_results
+from scrapers.anysearch_scraper import _source_from_url, parse_anysearch_results
+from scrapers.github_scraper import parse_github_issue_item
+from scrapers.trustmrr_scraper import parse_trustmrr_startup
 from signal_utils import extract_signal_matches, has_opportunity_signal
 
 
@@ -44,6 +46,22 @@ class AnalyzerTest(unittest.TestCase):
         self.assertGreaterEqual(analysis["opportunity_score"], 1)
         self.assertLessEqual(analysis["opportunity_score"], 10)
         self.assertEqual(analysis["pay_signal"], "high")
+
+    def test_trustmrr_signal_uses_market_validation_heuristic(self) -> None:
+        analysis = heuristic_analyze_post(
+            {
+                "source": "TrustMRR/saas",
+                "title": "Tiny CRM: verified revenue in saas",
+                "mrr_cents": 25000,
+                "last30_revenue_cents": 50000,
+                "growth30d": 12,
+                "category": "saas",
+                "target_audience": "b2b",
+            }
+        )
+        self.assertTrue(analysis["is_product_opportunity"])
+        self.assertEqual(analysis["pay_signal"], "high")
+        self.assertIn("verified revenue", analysis["pain_summary"].lower())
 
 
 class DatabaseTest(unittest.TestCase):
@@ -175,6 +193,74 @@ date: Feb 24, 2026
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["url"], "https://www.reddit.com/r/SaaS/comments/example/dashboard/")
         self.assertIn("simple tool", results[0]["snippet"])
+
+    def test_anysearch_source_classification(self) -> None:
+        self.assertEqual(
+            _source_from_url("https://github.com/acme/tool/issues/1"),
+            "AnySearch/GitHub/acme/tool",
+        )
+        self.assertEqual(
+            _source_from_url("https://x.com/founder/status/1"),
+            "AnySearch/X/@founder",
+        )
+
+
+class GitHubScraperTest(unittest.TestCase):
+    def test_parse_github_issue_item(self) -> None:
+        parsed = parse_github_issue_item(
+            {
+                "title": "I wish there was a tool for this workflow",
+                "body": "We are doing this manually and need automation.",
+                "html_url": "https://github.com/acme/tool/issues/1",
+                "repository_url": "https://api.github.com/repos/acme/tool",
+                "comments": 4,
+                "updated_at": "2026-05-20T00:00:00Z",
+                "labels": [{"name": "feature request"}],
+                "reactions": {"+1": 3, "heart": 1, "rocket": 0, "eyes": 2},
+            }
+        )
+        self.assertIsNotNone(parsed)
+        assert parsed is not None
+        self.assertEqual(parsed["source"], "GitHub/acme/tool")
+        self.assertEqual(parsed["score"], 10)
+        self.assertIn("wish there was", parsed["pain_keywords"])
+        self.assertIn("tool", parsed["relevance_keywords"])
+
+    def test_parse_github_skips_pull_requests(self) -> None:
+        self.assertIsNone(
+            parse_github_issue_item(
+                {
+                    "title": "I wish there was a tool",
+                    "body": "manual workflow",
+                    "pull_request": {},
+                }
+            )
+        )
+
+
+class TrustMRRScraperTest(unittest.TestCase):
+    def test_parse_trustmrr_startup(self) -> None:
+        parsed = parse_trustmrr_startup(
+            {
+                "name": "WorkflowFox",
+                "slug": "workflowfox",
+                "description": "Automates small business workflows.",
+                "category": "saas",
+                "targetAudience": "b2b",
+                "revenue": {"mrr": 12500, "last30Days": 22000, "total": 100000},
+                "customers": 34,
+                "activeSubscriptions": 12,
+                "growth30d": 8,
+                "growthMRR30d": 5,
+                "foundedDate": "2026-01-01T00:00:00.000Z",
+            }
+        )
+        self.assertIsNotNone(parsed)
+        assert parsed is not None
+        self.assertEqual(parsed["source"], "TrustMRR/saas")
+        self.assertEqual(parsed["url"], "https://trustmrr.com/startup/workflowfox")
+        self.assertEqual(parsed["mrr_cents"], 12500)
+        self.assertIn("verified revenue", parsed["pain_keywords"])
 
 
 if __name__ == "__main__":

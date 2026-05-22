@@ -82,9 +82,46 @@ ANYSEARCH_REDDIT_QUERIES = [
     'site:reddit.com/r/nocode "no good solution" automate',
 ]
 
+ANYSEARCH_SOURCE_QUERIES = {
+    "Reddit": ANYSEARCH_REDDIT_QUERIES,
+    "X": [
+        'site:x.com "wish there was" "tool"',
+        'site:x.com "would pay for" "software"',
+        'site:twitter.com "doing this manually" "workflow"',
+        'site:twitter.com "looking for a tool" "automate"',
+    ],
+    "GitHub": [
+        'site:github.com "wish there was" "tool" "issues"',
+        'site:github.com "looking for a tool" "workflow" "issues"',
+        'site:github.com "manual workflow" "automation" "issues"',
+    ],
+}
+
+GITHUB_SEARCH_QUERIES = [
+    '"wish there was" "tool" in:title,body type:issue',
+    '"looking for a tool" "workflow" in:title,body type:issue',
+    '"manual workflow" "automation" in:title,body type:issue',
+    '"no good solution" "api" in:title,body type:issue',
+    '"too expensive" "alternative" in:title,body type:issue',
+]
+
+TRUSTMRR_CATEGORIES = [
+    "saas",
+    "ai",
+    "developer-tools",
+    "productivity",
+    "no-code",
+    "analytics",
+    "marketing",
+]
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 ANYSEARCH_API_KEY = os.getenv("ANYSEARCH_API_KEY", "")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
+TRUSTMRR_API_KEY = os.getenv("TRUSTMRR_API_KEY", "")
+TRUSTMRR_MIN_MRR_CENTS = int(os.getenv("TRUSTMRR_MIN_MRR_CENTS", "1000"))
+TRUSTMRR_LIMIT_PER_CATEGORY = int(os.getenv("TRUSTMRR_LIMIT_PER_CATEGORY", "5"))
 
 REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID", "")
 REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET", "")
