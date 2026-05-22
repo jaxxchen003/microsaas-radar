@@ -265,7 +265,7 @@ def _render_card(post: dict[str, Any]) -> str:
     relevance_keywords = _split_keywords(post.get("relevance_keywords"))
     title = str(post.get("title", ""))
     date_text = str(post.get("date", ""))
-    source = str(post.get("source", ""))
+    source = _source_short_name(str(post.get("source", "")))
     workaround = (
         _e(post.get("current_workaround"))
         if post.get("current_workaround")
@@ -315,13 +315,19 @@ def _render_stat(value: object, en_label: str, zh_label: str) -> str:
 
 def _report_stats(high_value: list[dict[str, Any]], analyzed_posts: list[dict[str, Any]]) -> dict[str, Any]:
     scores = [int(post.get("opportunity_score") or 0) for post in high_value]
-    sources = sorted({str(post.get("source") or "") for post in high_value if post.get("source")})
+    sources = sorted(
+        {
+            _source_short_name(str(post.get("source") or ""))
+            for post in high_value
+            if post.get("source")
+        }
+    )
     return {
         "signals": len(analyzed_posts),
         "high_pay": sum(1 for post in high_value if _level_key(post.get("pay_signal")) == "high"),
         "low_comp": sum(1 for post in high_value if _level_key(post.get("competition")) == "low"),
         "avg_score": f"{(sum(scores) / len(scores)):.1f}" if scores else "0.0",
-        "sources": ", ".join(_source_short_name(source) for source in sources) or "-",
+        "sources": ", ".join(sources) or "-",
     }
 
 
@@ -876,10 +882,17 @@ def _split_keywords(value: object) -> list[str]:
 
 
 def _source_short_name(source: str) -> str:
-    if source == "HackerNews":
+    normalized = source.lower()
+    if source == "HackerNews" or normalized.startswith("hn"):
         return "HN"
-    if source.startswith("Reddit/"):
+    if normalized.startswith("reddit") or normalized.startswith("anysearch/reddit"):
         return "Reddit"
+    if normalized.startswith("anysearch/x") or normalized.startswith("x/") or normalized.startswith("twitter"):
+        return "X"
+    if normalized.startswith("github") or normalized.startswith("anysearch/github"):
+        return "GitHub"
+    if normalized.startswith("trustmrr"):
+        return "TrustMRR"
     return source
 
 

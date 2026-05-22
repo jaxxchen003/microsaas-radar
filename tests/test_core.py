@@ -147,6 +147,50 @@ class ReporterTest(unittest.TestCase):
             self.assertIn("痛点信号词", html_text)
             self.assertIn("Pay:", html_text)
 
+    def test_report_compacts_source_names(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            posts = [
+                {
+                    "source": "AnySearch/X/@founder",
+                    "title": "I wish there was a tool",
+                    "url": "https://x.com/founder/status/1",
+                    "date": "2026-05-22",
+                    "score": 0,
+                    "comments": 0,
+                    "pain_summary": "manual workflow",
+                    "current_workaround": None,
+                    "target_user": "operators",
+                    "product_idea": "automation",
+                    "pay_signal": "high",
+                    "competition": "medium",
+                    "opportunity_score": 8,
+                    "reason": "strong signal",
+                },
+                {
+                    "source": "GitHub/acme/tool",
+                    "title": "Looking for a workflow tool",
+                    "url": "https://github.com/acme/tool/issues/1",
+                    "date": "2026-05-22",
+                    "score": 4,
+                    "comments": 2,
+                    "pain_summary": "manual workflow",
+                    "current_workaround": None,
+                    "target_user": "operators",
+                    "product_idea": "automation",
+                    "pay_signal": "medium",
+                    "competition": "medium",
+                    "opportunity_score": 7,
+                    "reason": "strong signal",
+                },
+            ]
+            html_path = generate_html_report(posts, Path(tmpdir) / "report.html")
+            html_text = html_path.read_text(encoding="utf-8")
+            self.assertIn('<span class="source-tag">X</span>', html_text)
+            self.assertIn('<span class="source-tag">GitHub</span>', html_text)
+            self.assertIn('<span class="stat-num">GitHub, X</span>', html_text)
+            self.assertNotIn("AnySearch/X/@founder", html_text)
+            self.assertNotIn("GitHub/acme/tool", html_text)
+
     def test_generates_static_site_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             posts = [
