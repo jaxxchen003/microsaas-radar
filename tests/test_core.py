@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from analyzer import heuristic_analyze_post
+from analyzer import _candidate_priority, heuristic_analyze_post
 from db import fetch_analyzed_posts, init_db, upsert_analyses, upsert_posts
 from reporter import generate_csv_report, generate_html_report, generate_report_site
 from scrapers.anysearch_scraper import _source_from_url, parse_anysearch_results
@@ -46,6 +46,23 @@ class AnalyzerTest(unittest.TestCase):
         self.assertGreaterEqual(analysis["opportunity_score"], 1)
         self.assertLessEqual(analysis["opportunity_score"], 10)
         self.assertEqual(analysis["pay_signal"], "high")
+
+    def test_candidate_priority_balances_source_and_engagement(self) -> None:
+        anysearch_signal = {
+            "source": "AnySearch/X/@founder",
+            "score": 0,
+            "comments": 0,
+            "pain_keywords": "wish there was, would pay for",
+            "relevance_keywords": "tool, workflow",
+        }
+        hn_signal = {
+            "source": "HackerNews",
+            "score": 200,
+            "comments": 80,
+            "pain_keywords": "wish there was",
+            "relevance_keywords": "tool",
+        }
+        self.assertGreater(_candidate_priority(anysearch_signal), _candidate_priority(hn_signal))
 
     def test_trustmrr_signal_uses_market_validation_heuristic(self) -> None:
         analysis = heuristic_analyze_post(

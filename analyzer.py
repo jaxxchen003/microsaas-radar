@@ -192,7 +192,7 @@ def batch_analyze(
     use_llm: bool = True,
     delay_seconds: float = 0.3,
 ) -> list[dict[str, Any]]:
-    top_posts = sorted(posts, key=lambda item: int(item.get("score") or 0), reverse=True)[:max_items]
+    top_posts = sorted(posts, key=_candidate_priority, reverse=True)[:max_items]
     analyzed: list[dict[str, Any]] = []
     for index, post in enumerate(top_posts):
         print(f"  Analyzing {index + 1}/{len(top_posts)}: {str(post.get('title', ''))[:60]}...")
@@ -229,3 +229,29 @@ def _normalize_level(value: object, default: str) -> str:
 
 def _is_trustmrr_signal(post: dict[str, Any]) -> bool:
     return str(post.get("source") or "").lower().startswith("trustmrr/")
+
+
+def _candidate_priority(post: dict[str, Any]) -> float:
+    """Rank candidates before LLM calls without letting HN points dominate."""
+
+    source = str(post.get("source") or "").lower()
+    pain_count = len(_split_keywords(post.get("pain_keywords", "")))
+    relevance_count = len(_split_keywords(post.get("relevance_keywords", "")))
+    raw_score = max(int(post.get("score") or 0), 0)
+    comments = max(int(post.get("comments") or 0), 0)
+
+    source_bonus = 0.0
+    if source.startswith("trustmrr/"):
+        source_bonus = 11.0
+    elif source.startswith("anysearch/x"):
+        source_bonus = 10.0
+    elif source.startswith("anysearch/github") or source.startswith("github/"):
+        source_bonus = 8.0
+    elif source.startswith("reddit") or source.startswith("anysearch/reddit"):
+        source_bonus = 7.0
+    elif source.startswith("hackernews"):
+        source_bonus = 4.0
+
+    keyword_score = pain_count * 5.0 + relevance_count * 2.0
+    engagement_score = min(raw_score, 100) / 20.0 + min(comments, 50) / 10.0
+    return source_bonus + keyword_score + engagement_score
