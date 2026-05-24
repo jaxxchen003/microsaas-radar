@@ -62,7 +62,7 @@ https://jaxxchen003.github.io/microsaas-radar/
 
 ### GitHub Actions
 
-The repository includes `.github/workflows/daily-report.yml`. It runs every day at 09:00 Asia/Shanghai and can also be started manually from the Actions tab.
+The repository includes `.github/workflows/daily-report.yml`. It tries several morning schedules between 07:37 and 12:37 Asia/Shanghai because GitHub can delay or skip scheduled workflow starts. Scheduled runs skip automatically when the current day's archived report already exists. The workflow can also be started manually from the Actions tab.
 
 Optional repository secrets:
 
