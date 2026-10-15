@@ -1,0 +1,2126 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Micro SaaS Radar Report</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f6f2;
+      --surface: #f9f8f5;
+      --surface2: #ffffff;
+      --border: #dcd9d5;
+      --text: #28251d;
+      --muted: #77746d;
+      --faint: #aaa7a0;
+      --primary: #01696f;
+      --primary-strong: #0c4e54;
+      --shadow: 0 1px 3px rgb(40 37 29 / 0.07), 0 4px 16px rgb(40 37 29 / 0.05);
+      --r: 8px;
+    }
+    html[data-theme="dark"] {
+      --bg: #171614;
+      --surface: #1c1b19;
+      --surface2: #242321;
+      --border: #3b3936;
+      --text: #e4e2de;
+      --muted: #97938d;
+      --faint: #67625e;
+      --primary: #4f98a3;
+      --primary-strong: #74c8d2;
+      --shadow: 0 1px 3px rgb(0 0 0 / 0.34), 0 4px 20px rgb(0 0 0 / 0.22);
+    }
+    html[data-lang="zh"] .lang-en,
+    html[data-lang="en"] .lang-zh {
+      display: none;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    a {
+      color: var(--primary-strong);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px max(20px, calc((100vw - 1400px) / 2));
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 250px;
+    }
+    .radar-mark {
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+    h1 {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .updated {
+      color: var(--faint);
+      font-size: 12px;
+    }
+    .header-link {
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .header-link:hover {
+      border-color: var(--primary);
+      color: var(--primary-strong);
+      text-decoration: none;
+    }
+    .language-toggle {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .language-toggle button,
+    .theme-btn,
+    .filter-btn {
+      appearance: none;
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+    .language-toggle button {
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .language-toggle button[aria-pressed="true"] {
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+    }
+    .theme-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 6px 10px;
+    }
+    .stats-bar {
+      display: flex;
+      gap: clamp(20px, 4vw, 58px);
+      flex-wrap: wrap;
+      padding: 14px max(20px, calc((100vw - 1400px) / 2));
+      background: var(--primary);
+      color: white;
+    }
+    .stat {
+      min-width: 90px;
+      display: grid;
+      gap: 1px;
+    }
+    .stat-num {
+      font-size: 22px;
+      font-weight: 850;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.8;
+      font-weight: 700;
+    }
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px max(20px, calc((100vw - 1400px) / 2));
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .filter-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 13px;
+      transition: background 0.18s, color 0.18s, border-color 0.18s;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 20px 10px;
+    }
+    .index-main {
+      max-width: 900px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(390px, 100%), 1fr));
+      gap: 20px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 100%;
+      padding: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+    }
+    .card:hover {
+      border-color: color-mix(in srgb, var(--primary) 52%, var(--border));
+      box-shadow: 0 8px 26px rgb(1 105 111 / 0.16);
+      transform: translateY(-1px);
+    }
+    .card.is-hidden {
+      display: none;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .score-badge,
+    .source-tag,
+    .date-tag,
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .score-badge {
+      padding: 5px 10px;
+      font-size: 14px;
+      font-weight: 850;
+      border: 1px solid;
+    }
+    .score-high {
+      color: #22c55e;
+      background: rgb(34 197 94 / 0.13);
+      border-color: rgb(34 197 94 / 0.35);
+    }
+    .score-mid {
+      color: #f59e0b;
+      background: rgb(245 158 11 / 0.13);
+      border-color: rgb(245 158 11 / 0.35);
+    }
+    .score-low {
+      color: #ef4444;
+      background: rgb(239 68 68 / 0.12);
+      border-color: rgb(239 68 68 / 0.32);
+    }
+    .meta-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .source-tag {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .date-tag {
+      color: var(--faint);
+      font-size: 12px;
+    }
+    .card-title {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+    .card-title a {
+      color: var(--text);
+    }
+    .card-title a:hover {
+      color: var(--primary-strong);
+      text-decoration: none;
+    }
+    .insight-box {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 12px;
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .box-icon {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+      color: var(--primary-strong);
+      font-weight: 900;
+      line-height: 1;
+    }
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .badge {
+      max-width: 100%;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 750;
+      color: var(--muted);
+      background: var(--bg);
+    }
+    .badge.wide {
+      white-space: normal;
+    }
+    .pay-high,
+    .comp-low {
+      color: #22c55e;
+      background: rgb(34 197 94 / 0.12);
+      border-color: rgb(34 197 94 / 0.30);
+    }
+    .pay-medium,
+    .comp-medium {
+      color: #f59e0b;
+      background: rgb(245 158 11 / 0.12);
+      border-color: rgb(245 158 11 / 0.30);
+    }
+    .pay-low,
+    .comp-high {
+      color: #ef4444;
+      background: rgb(239 68 68 / 0.11);
+      border-color: rgb(239 68 68 / 0.28);
+    }
+    .keyword-row,
+    .reason-row {
+      color: var(--faint);
+      font-size: 12px;
+    }
+    .keyword-row em {
+      color: var(--muted);
+      font-style: normal;
+    }
+    .reason-row {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      line-height: 1.5;
+    }
+    .empty {
+      grid-column: 1 / -1;
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: var(--surface2);
+    }
+    .footer {
+      padding: 28px 20px 34px;
+      text-align: center;
+      color: var(--faint);
+      font-size: 13px;
+    }
+    .actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .action-card,
+    .archive-list li {
+      display: block;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+    .archive-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    @media (max-width: 720px) {
+      .header {
+        position: static;
+        align-items: flex-start;
+      }
+      .header-actions {
+        justify-content: flex-start;
+      }
+      .stats-bar {
+        gap: 18px;
+      }
+      .stat {
+        min-width: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="radar-mark" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="15" cy="15" r="12" stroke="currentColor" stroke-width="2"/>
+          <circle cx="15" cy="15" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <circle cx="15" cy="15" r="2.5" fill="currentColor"/>
+          <path d="M15 3V7M25.4 9L21.9 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1><span class="lang-zh">Micro SaaS 需求雷达</span><span class="lang-en">Micro SaaS Radar Report</span></h1>
+        <p><span class="lang-zh">自动扫描真实用户痛点</span><span class="lang-en">Automated scan of real user pain signals</span></p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="updated"><span class="lang-zh">更新于</span><span class="lang-en">Updated</span> 2026-10-15</span>
+      <a class="header-link" href="../index.html"><span class="lang-zh">历史</span><span class="lang-en">History</span></a>
+      <a class="header-link" href="../opportunities.csv">CSV</a>
+      <div class="language-toggle" aria-label="Language">
+        <button type="button" data-set-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-set-lang="en" aria-pressed="false">English</button>
+      </div>
+      <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle theme">◐</button>
+    </div>
+  </header>
+  <section class="stats-bar" aria-label="Report statistics">
+    
+    <div class="stat">
+      <span class="stat-num">50</span>
+      <span class="stat-label"><span class="lang-zh">痛点信号</span><span class="lang-en">Pain signals</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label"><span class="lang-zh">高付费意愿</span><span class="lang-en">High pay intent</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num"></span>
+      <span class="stat-label"><span class="lang-zh">低竞争机会</span><span class="lang-en">Low competition</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num">8.1</span>
+      <span class="stat-label"><span class="lang-zh">平均机会分</span><span class="lang-en">Avg opportunity</span></span>
+    </div>
+    
+    
+    <div class="stat">
+      <span class="stat-num">GitHub, HN, Reddit, X</span>
+      <span class="stat-label"><span class="lang-zh">数据来源</span><span class="lang-en">Sources</span></span>
+    </div>
+    
+  </section>
+  <section class="filters" aria-label="Opportunity filters">
+    <span class="filter-label"><span class="lang-zh">筛选：</span><span class="lang-en">Filter:</span></span>
+    <button class="filter-btn active" type="button" data-filter="all"><span class="lang-zh">全部</span><span class="lang-en">All</span></button>
+    <button class="filter-btn" type="button" data-filter="high-pay"><span class="lang-zh">高付费意愿</span><span class="lang-en">High pay intent</span></button>
+    <button class="filter-btn" type="button" data-filter="low-comp"><span class="lang-zh">低竞争</span><span class="lang-en">Low competition</span></button>
+    <button class="filter-btn" type="button" data-filter="score-8"><span class="lang-zh">8分以上</span><span class="lang-en">8+ score</span></button>
+    <button class="filter-btn" type="button" data-filter="score-6"><span class="lang-zh">6分以上</span><span class="lang-en">6+ score</span></button>
+  </section>
+  <main>
+    <section class="grid" id="cards-grid">
+      
+      <article class="card" data-score="10" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">10/10</span><span class="lang-en">10/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2023-11-11</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=38232930" target="_blank" rel="noopener noreferrer">Ask HN: What are good books on SW architecture that don't sell microservices?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>There have been multiple discussions of how the microservices movement did more harm than good, how a modular monolith can be a much better option.&lt;p&gt;I wish there was a comprehensi</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">25 条评论</span><span class="lang-en">25 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">55 原站分</span><span class="lang-en">55 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>service, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="10" data-pay="high" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">10/10</span><span class="lang-en">10/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-10-01</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/abhishekdubey331/app-ideas-30-days-extension/issues/15" target="_blank" rel="noopener noreferrer">Seed audit — 2026-10</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Auto-generated monthly seed audit.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-high"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">高</span><span class="lang-en">high</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, why is there no, frustrated with, i wish there was, would pay for</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, software, api, product, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="10" data-pay="high" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">10/10</span><span class="lang-en">10/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-01</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/abhishekdubey331/app-ideas-30-days-extension/issues/14" target="_blank" rel="noopener noreferrer">Seed audit — 2026-09</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Auto-generated monthly seed audit.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-high"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">高</span><span class="lang-en">high</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, why is there no, frustrated with, i wish there was, would pay for</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, software, api, product, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2019-07-06</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=20371095" target="_blank" rel="noopener noreferrer">Ask HN: Best office chair for home office work?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I&amp;#x27;m looking for an office chair that I can spend 6-10 hours a day in.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">137 条评论</span><span class="lang-en">137 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">163 原站分</span><span class="lang-en">163 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>service, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2021-11-19</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=29275470" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no good open-source LMS?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I want to start a teaching business.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">159 条评论</span><span class="lang-en">159 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">157 原站分</span><span class="lang-en">157 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>software, platform, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2022-01-28</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=30117383" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no high quality method for voice control of a PC?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Like many people who have spent decades behind a keyboard, RSI (Repetitive Stress Injury) prevents me from writing code and doing graphic design through the usual keyboard and mous</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">119 条评论</span><span class="lang-en">119 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">90 原站分</span><span class="lang-en">90 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>software, bot, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2023-10-17</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=37918308" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no modern successor to the 3D Pinball games of yesteryear?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I recall games like Full Tilt!</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">87 条评论</span><span class="lang-en">87 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">88 原站分</span><span class="lang-en">88 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app, integration, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2022-11-09</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=33531711" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no way to lower amber alert volume on headphones?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I want to contribute to community efforts at finding missing kids and be ready for local disaster situations.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">143 条评论</span><span class="lang-en">143 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">76 原站分</span><span class="lang-en">76 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2021-10-14</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=28861970" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no Django/Rails equivalent in JavaScript world?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>To be more specific, some exists, for example Sails (MVC architecture), Nest (gathering best tools and providing an architecture to use them together), or Blitz (Full stack React).</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">82 条评论</span><span class="lang-en">82 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">52 原站分</span><span class="lang-en">52 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, bot, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2011-08-28</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=2934103" target="_blank" rel="noopener noreferrer">Ask HN: Is there something like HN for successful entrepreneurs?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I still love to read HN every day.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">50 条评论</span><span class="lang-en">50 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">51 原站分</span><span class="lang-en">51 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>startup, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-27</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/JurajNyiri/HomeAssistant-Tapo-Control/issues/1068" target="_blank" rel="noopener noreferrer">Media Sync is not very reliable</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>### Description This is about Homeassistant 2025.8.3 and TapoControl integration 7.0.0 and it has been bothering me for a couple of months already.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">27 条评论</span><span class="lang-en">27 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">30 原站分</span><span class="lang-en">30 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, product, service, bot, script, integration, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2010-03-11</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=1185224" target="_blank" rel="noopener noreferrer">Ask HN: Space in the market for luxury public transit?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>To begin, I hate cars.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">48 条评论</span><span class="lang-en">48 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">18 原站分</span><span class="lang-en">18 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>service, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="9" data-pay="high" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">9/10</span><span class="lang-en">9/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-08-26</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/AvdLee/RocketSimApp/issues/946" target="_blank" rel="noopener noreferrer">Programmatic automation support (network speed, push notifications, deep links)</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>**Is your feature request related to a problem?</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-high"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">高</span><span class="lang-en">high</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 条评论</span><span class="lang-en">1 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">2 原站分</span><span class="lang-en">2 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> manual workflow</span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, automat, workflow, script, integration, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2022-08-19</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=32526108" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no performant remote desktop for Mac/Linux?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>IIUC, RDP (Microsoft&amp;#x27;s remote desktop protocol) sends draw commands across.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">214 条评论</span><span class="lang-en">214 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">198 原站分</span><span class="lang-en">198 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2022-02-20</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=30405011" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no small Android phone?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>When I search for phones with 3GB+ RAM and &amp;lt;=140mm height, there&amp;#x27;s only iPhone SE, iPhone 12 mini, and iPhone 13 mini.&lt;p&gt;The fact that Apple released 3 phones in 3 years wi</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">220 条评论</span><span class="lang-en">220 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">191 原站分</span><span class="lang-en">191 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2019-02-24</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=19239317" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no activity indicator when an iPhone's camera is on?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I never understood this.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">60 条评论</span><span class="lang-en">60 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">118 原站分</span><span class="lang-en">118 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2024-10-17</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=41871499" target="_blank" rel="noopener noreferrer">Ask HN: Why is there not more concern about the physical security of Cloudflare?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Using Hetzner and Azure, we trust that our unencrypted in-memory data and business logic are housed in professional data centers with strong physical security measures.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">54 条评论</span><span class="lang-en">54 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">90 原站分</span><span class="lang-en">90 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2022-05-25</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=31504008" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no enterprise grade open-source zoom alternative?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>We have a client who are looking to replace zoom in their org.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">34 条评论</span><span class="lang-en">34 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">41 原站分</span><span class="lang-en">41 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app, service, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2023-07-05</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=36596324" target="_blank" rel="noopener noreferrer">Ask HN: Why is there no major push towards Android for Servers and Desktops?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Servers are dominated by Linux.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">66 条评论</span><span class="lang-en">66 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">29 原站分</span><span class="lang-en">29 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>why is there no</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app, api, service, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2022-10-31</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=33411164" target="_blank" rel="noopener noreferrer">Ask HN: Hacker News for Non-Software Engineers</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Hi HN!&lt;p&gt;While I love the culture and many of the articles, HN is not as relevant as I wish it was to my day-to-day job and interests.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">10 条评论</span><span class="lang-en">10 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">10 原站分</span><span class="lang-en">10 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>software, startup</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2014-04-14</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=7583983" target="_blank" rel="noopener noreferrer">Ask HN Mods: Can we add some extra options to comments?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>In large threads where there are hundreds of comments, I find myself frustrated at times with the way comments are displayed.&lt;p&gt;1.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">6 条评论</span><span class="lang-en">6 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">8 原站分</span><span class="lang-en">8 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> manual workflow</span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app, plugin, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2021-12-26</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=29691814" target="_blank" rel="noopener noreferrer">Ask HN: Programs on your laptop that saved you hundreds of hours?(2021)</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I will go first.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">5 原站分</span><span class="lang-en">5 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, software, platform, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2010-01-18</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=1060320" target="_blank" rel="noopener noreferrer">Ask HN: Side Project Turned Turned Obsession - Please Review My Site</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Hi all,&lt;p&gt;---------------------------&lt;p&gt;tl;dr Launching a new ecommerce site builder/print catalogue builder after 2 years of tinkering away.&lt;p&gt;http://www.wizifi.com&lt;p&gt;a HN demo st</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">4 条评论</span><span class="lang-en">4 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 原站分</span><span class="lang-en">3 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app, product, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">HN</span>
+            <span class="date-tag">2020-06-11</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://news.ycombinator.com/item?id=23491064" target="_blank" rel="noopener noreferrer">Ask HN: What are you guys using for background workers nowadays?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Back when I was working with Rails about 4-10 years ago, I used background workers (sidekiq, faktory, delayed job, resque) to offload processing that can happen outside of the requ</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 条评论</span><span class="lang-en">3 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 原站分</span><span class="lang-en">3 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, api, service, platform, integration, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-20</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/ubuntu-flutter-community/musicpod/issues/1407" target="_blank" rel="noopener noreferrer">RFC: Spec for the migration to MSIX</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I'm using this issue to agree on a plan regarding the details behind the publication of the MusicPod MSIX.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 条评论</span><span class="lang-en">3 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 原站分</span><span class="lang-en">3 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, automat, workflow, bot, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-10-07</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/homerious/pinslip/issues/13" target="_blank" rel="noopener noreferrer">Shortcut problem (Ctrl + Shift + N)</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>First I wanted to thank you for this awesome application, Windows 11's cloud features have spoiled the pre-installed sticky notes for me and I'm not going to use it anymore.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 条评论</span><span class="lang-en">1 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">2 原站分</span><span class="lang-en">2 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-10-04</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/sanskarIN/sanskarIN.github.io/issues/9" target="_blank" rel="noopener noreferrer">The Quiet Power of Small Software: Why Tiny Tools Still Matter</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>### Summary Small, focused software can solve real problems, improve workflows, and create valuable open-source projects.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">2 条评论</span><span class="lang-en">2 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">2 原站分</span><span class="lang-en">2 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> manual workflow</span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, software, automat, workflow, api, service, platform, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-20</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/fzyzcjy/flutter_rust_bridge/issues/3468" target="_blank" rel="noopener noreferrer">allow skipping auto install of required tools</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>**Is your feature request related to a problem?</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 条评论</span><span class="lang-en">1 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 原站分</span><span class="lang-en">1 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, automat, platform, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">Reddit</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://www.reddit.com/r/smallbusiness/comments/1qp7541/is_there_a_way_to_automate_saas_documentation/" target="_blank" rel="noopener noreferrer">Is there a way to automate SaaS documentation?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Since it's very small team, doing this manually means less time to actually improve the product.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> manual workflow</span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>doing this manually, is there a way to automate</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>saas, automat, product</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/welsh_pain/status/2108595330329825660" target="_blank" rel="noopener noreferrer">Owain on X: "I wish there was an AI tool that I could give all my ...</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>5 days ago · I wish there was an AI tool that I could give all my referenced literature and build a skeleton of a paper.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/euboid/status/1951314805094048152" target="_blank" rel="noopener noreferrer">Wilson Wilson on X: "I wish there was a tool that would let you keep your ...</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span># Post by @euboid ## Post I wish there was a tool that would let you keep your help center up to date automatically...</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, automat</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/SocialtyPro/status/2041242826932113718" target="_blank" rel="noopener noreferrer">Austin Armstrong on X: "I'd build and sell vibe coded micro SaaS. No ...</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Where to hunt: Reddit posts that say "I wish there was a tool that…" 1-star reviews of existing SaaS tools Manual spreadsheet tasks people hate ...</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> manual workflow</span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, saas</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/cumpothead/status/1973842884333011443" target="_blank" rel="noopener noreferrer">Alikuam☄️ (Comms are CLOSED) on X</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I wish there was a tool to track how much time you've spent in a drawing app (like how steam shows how many hours you've played).</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/mikestrives/status/1912839496690790690" target="_blank" rel="noopener noreferrer">Scrape 1 and 2-star G2/Capterra reviews of popular SaaS tools to ... - X</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span># Post by @mikestrives ## Post - Use X advanced search to find tweets with “I wish there was a tool for...”</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, saas</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/johnrushx/status/1773846935452979376" target="_blank" rel="noopener noreferrer">1. Pain at my own work Listing tools took ages, so I made a tool for it ... - X</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Pain at my own work Listing tools took ages, so I made a tool for it.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/heysatya_/status/1937868533490471236" target="_blank" rel="noopener noreferrer">Satya on X: "Designers &amp; Developers What's that one AI tool you ...</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Designers &amp; Developers What's that one AI tool you wish existed but doesn't yet?</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="8" data-pay="high" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-high"><span class="lang-zh">8/10</span><span class="lang-en">8/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">Reddit</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://www.reddit.com/r/SaaS/comments/1isxdsy/willpayforthiscom_see_what_products_people_will/" target="_blank" rel="noopener noreferrer">WillPayForThis.com - See what products people will pay for</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>It connected to the Twitter API, and compiled a ton of business / startup / product / software ...</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-high"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">高</span><span class="lang-en">high</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>would pay for</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>software, api, startup, product</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-19</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/openhab/openhab-addons/issues/7024" target="_blank" rel="noopener noreferrer">[Tellstick] Addon not working with the latest builds</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>When installing version 2.5.x of "release" versions of OpenHAB, the Tellstick binding does not work.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">5 条评论</span><span class="lang-en">5 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">7 原站分</span><span class="lang-en">7 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>no good solution</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>api, product, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-18</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/vuejs/core/issues/7947" target="_blank" rel="noopener noreferrer">Allow disabling or clearing of compile cache in SSR render</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>### What problem does this feature solve?</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 条评论</span><span class="lang-en">3 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">5 原站分</span><span class="lang-en">5 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>no good solution</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>app, api, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-21</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/3DStreet/3dstreet/issues/1976" target="_blank" rel="noopener noreferrer">drawing shapes part 2</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>User feedback: - "[We] think it's a great feature!</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 条评论</span><span class="lang-en">3 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">3 原站分</span><span class="lang-en">3 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, workflow, bot, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-10-03</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/ChristopherMarais/barkandambrosiagallery/issues/384" target="_blank" rel="noopener noreferrer">Live classroom/multiplayer session mode (Kahoot-style) for lab meetings, clubs and outreach</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>## Feedback (lab meeting) - "When I went to the [QR code] scanned thing earlier, was that just inviting people to join?</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 条评论</span><span class="lang-en">1 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 原站分</span><span class="lang-en">1 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-08-29</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/soli-dstate/DOOM-Tools/issues/36" target="_blank" rel="noopener noreferrer">[Bug] Add remove button for old crate files on loot screen</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>**Reported by:** Lev Trotsky **App version:** 2.0.13 **Platform:** Windows 11 ## Description you didn't add a button that removes old crate files from the loot screen ## Steps to R</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 条评论</span><span class="lang-en">1 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">1 原站分</span><span class="lang-en">1 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, automat, platform, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-10-15</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/savisaluwadana/Pain-Point-Analyzer/issues/28" target="_blank" rel="noopener noreferrer">[Bluesky] Make Bluesky a strong pain-point source</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>## Why Bluesky is good for pain points: people complain in public, in plain words, and the API is open.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, api, service, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-10-10</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/freeside-ai/freeside/issues/1926" target="_blank" rel="noopener noreferrer">Let the operator watch a running agent invocation</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>## Objective Let the operator open a running agent invocation and see what it is doing, so a long implementation is not a blank wait.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, api, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag">2026-09-22</span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://github.com/Ssyoutube202500/flashdl/issues/1" target="_blank" rel="noopener noreferrer">The "Free" YouTube Downloader Struggle: Why Do They Always Stop Working?</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I need to confess something.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>looking for a tool that</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, software, script, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://x.com/wesball/status/1813408520580079912" target="_blank" rel="noopener noreferrer">Wes Ball on X: "Any peeps using Bluesky? I wish there was a tool ...</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>I wish there was a tool that looked for users I follow on Twitter that also have a Bluesky account.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>wish there was, i wish there was</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://twitter.com/iterateai/" target="_blank" rel="noopener noreferrer">iterate.ai (@IterateAI) / X</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>We digitize, automate, and remove costs whenever possible.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>looking for a tool that</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, automat, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://twitter.com/itsscoreapp" target="_blank" rel="noopener noreferrer">ScoreApp (@itsscoreapp) / X</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>If you're looking for a tool that helps you filter your good leads from your ...</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>looking for a tool that</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, automat</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">X</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://twitter.com/KellyLappG?s=20&amp;t=FTkD1CCw53Kg9AP4q9hUIQ" target="_blank" rel="noopener noreferrer">Kelly Gustafson (@KellyLappG) / X</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Looking for a tool that can help with manual testing in Azure DevOps for ...</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> manual workflow</span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>looking for a tool that</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, automat, workflow</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+
+      <article class="card" data-score="7" data-pay="medium" data-comp="medium">
+        <div class="card-header">
+          <span class="score-badge score-mid"><span class="lang-zh">7/10</span><span class="lang-en">7/10</span></span>
+          <div class="meta-right">
+            <span class="source-tag">GitHub</span>
+            <span class="date-tag"></span>
+          </div>
+        </div>
+        <h2 class="card-title"><a href="https://awesome-copilot.github.com/learning-hub/copilot-workshops/app/7-canvases/" target="_blank" rel="noopener noreferrer">Lesson 7 - Planning with canvases | GitHub Copilot Learning Hub</a></h2>
+        <div class="insight-box pain-box">
+          <span class="box-icon" aria-hidden="true">!</span>
+          <span>Tailspin Toys' developers have been looking for a tool that would allow them to quickly triage issues, and begin work on them in Copilot app.</span>
+        </div>
+        <div class="insight-box product-box">
+          <span class="box-icon" aria-hidden="true">↗</span>
+          <span>Build a focused automation or workflow tool around the repeated pain signal.</span>
+        </div>
+        <div class="badges-row">
+          <span class="badge pay-medium"><span class="lang-zh">付费意愿：</span><span class="lang-en">Pay:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge comp-medium"><span class="lang-zh">竞争：</span><span class="lang-en">Competition:</span> <span class="lang-zh">中</span><span class="lang-en">medium</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 条评论</span><span class="lang-en">0 comments</span></span>
+          <span class="badge neutral"><span class="lang-zh">0 原站分</span><span class="lang-en">0 source score</span></span>
+          <span class="badge neutral wide"><span class="lang-zh">用户：</span><span class="lang-en">User:</span> Builders, operators, or teams facing this workflow</span>
+          <span class="badge neutral wide"><span class="lang-zh">替代方案：</span><span class="lang-en">Workaround:</span> <span class="lang-zh">未识别</span><span class="lang-en">None identified</span></span>
+        </div>
+        <div class="keyword-row"><span class="lang-zh">痛点信号词：</span><span class="lang-en">Pain keywords:</span> <em>looking for a tool that</em></div>
+        <div class="keyword-row"><span class="lang-zh">相关词：</span><span class="lang-en">Relevance keywords:</span> <em>tool, app, workflow, ai</em></div>
+        <div class="reason-row"><strong><span class="lang-zh">评分理由：</span><span class="lang-en">Reason:</span></strong> Heuristic score based on pain keywords, relevance keywords, post score, and comment activity.</div>
+      </article>
+    
+    </section>
+  </main>
+  <footer class="footer">
+    <span class="lang-zh">由 Micro SaaS Radar 生成。使用筛选器快速定位机会。</span><span class="lang-en">Generated by Micro SaaS Radar. Use filters to triage opportunities quickly.</span>
+  </footer>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const languageButtons = Array.from(document.querySelectorAll("[data-set-lang]"));
+      const themeButton = document.querySelector("[data-theme-toggle]");
+      const filterButtons = Array.from(document.querySelectorAll("[data-filter]"));
+      const cards = Array.from(document.querySelectorAll(".card[data-score]"));
+
+      const setLanguage = (lang) => {
+        const normalized = lang === "en" ? "en" : "zh";
+        root.dataset.lang = normalized;
+        root.lang = normalized === "zh" ? "zh-CN" : "en";
+        languageButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.setLang === normalized));
+        });
+        try {
+          localStorage.setItem("microsaas-radar-language", normalized);
+        } catch (error) {}
+      };
+
+      const setTheme = (theme) => {
+        const normalized = theme === "light" ? "light" : "dark";
+        root.dataset.theme = normalized;
+        if (themeButton) {
+          themeButton.textContent = normalized === "dark" ? "☀" : "◐";
+        }
+        try {
+          localStorage.setItem("microsaas-radar-theme", normalized);
+        } catch (error) {}
+      };
+
+      const applyFilter = (filter) => {
+        cards.forEach((card) => {
+          const score = Number(card.dataset.score || "0");
+          const pay = card.dataset.pay;
+          const comp = card.dataset.comp;
+          const visible =
+            filter === "all" ||
+            (filter === "high-pay" && pay === "high") ||
+            (filter === "low-comp" && comp === "low") ||
+            (filter === "score-8" && score >= 8) ||
+            (filter === "score-6" && score >= 6);
+          card.classList.toggle("is-hidden", !visible);
+        });
+        filterButtons.forEach((button) => {
+          button.classList.toggle("active", button.dataset.filter === filter);
+        });
+      };
+
+      languageButtons.forEach((button) => {
+        button.addEventListener("click", () => setLanguage(button.dataset.setLang));
+      });
+      if (themeButton) {
+        themeButton.addEventListener("click", () => {
+          setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+        });
+      }
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => applyFilter(button.dataset.filter || "all"));
+      });
+
+      let savedLanguage = "zh";
+      let savedTheme = "dark";
+      try {
+        savedLanguage = localStorage.getItem("microsaas-radar-language") || "zh";
+        savedTheme = localStorage.getItem("microsaas-radar-theme") || "dark";
+      } catch (error) {}
+      setLanguage(savedLanguage);
+      setTheme(savedTheme);
+      applyFilter("all");
+    })();
+  </script>
+</body>
+</html>
